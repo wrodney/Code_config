@@ -1,0 +1,639 @@
+Guacamole 1.5 Install on debian
+
+
+Download the Server file from http://guacamole.incubator.apache.org/releases/1.5.0/
+
+
+wget https://dlcdn.apache.org/guacamole/1.5.0/source/guacamole-server-1.5.0.tar.gz
+
+
+
+
+Unzip the file :
+tar -xvzf guacamole-server-1.5.0.tar.gz
+
+
+
+
+cd guacamole-server-1.5.0
+
+
+Install required libraries first  
+Note without Make on the linux distro it will not configure will give error as shown below and exit code 1 in config.log file.
+config.status: executing depfiles commands
+config.status: error: in `/home/iamroot/downs/guac/guacamole-server-1.5.0':
+config.status: error: Something went wrong bootstrapping makefile fragments
+    for automatic dependency tracking.  If GNU make was not used, consider
+    re-running the configure script with MAKE="gmake" (or whatever is
+    necessary).  You can also try re-running configure with the
+    '--disable-dependency-tracking' option to at least be able to build
+    the package (albeit without support for automatic dependency tracking).
+See `config.log' for more details
+
+
+For debian run this to install Make and resolve above ./configure error.
+
+
+apt install build-essential
+
+
+This will install all libraries listed on http://guacamole.incubator.apache.org/doc/gug/installing-guacamole.html
+
+
+apt install -y libcairo2-dev libjpeg62-turbo-dev libpng-dev libjpeg-dev libtool-bin uuid-dev libossp-uuid-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev freerdp2-dev libpango1.0-dev libssh2-1-dev libtelnet-dev libvncserver-dev libpulse-dev libssl-dev libvorbis-dev libwebp-dev libwebsockets-dev
+
+
+
+
+However can skip the telnet ( libtelnet-dev ) , vnc (libvncserver-dev)  or Kubernetics (libwebsockets-dev) if wont be using, above command will become :
+
+
+apt install -y libcairo2-dev libjpeg62-turbo-dev libpng-dev libjpeg-dev libtool-bin uuid-dev libossp-uuid-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev freerdp2-dev libpango1.0-dev libssh2-1-dev libpulse-dev libssl-dev libvorbis-dev libwebp-dev
+
+
+
+
+Now Run 
+./configure
+first and then 
+
+
+./configure --with-init-dir=/etc/init.d
+
+
+
+
+This is what the result will be if configure worked  (note here that we choose not to have Telnet, VNC and Kubernetes install), if you change your mind install them and run ./configure again:
+------------------------------------------------
+guacamole-server version 1.5.0
+------------------------------------------------
+
+
+   Library status:
+
+
+     freerdp2 ............ yes
+     pango ............... yes
+     libavcodec .......... yes
+     libavformat.......... yes
+     libavutil ........... yes
+     libssh2 ............. yes
+     libssl .............. yes
+     libswscale .......... yes
+     libtelnet ........... no
+     libVNCServer ........ no
+     libvorbis ........... yes
+     libpulse ............ yes
+     libwebsockets ....... no
+     libwebp ............. yes
+     wsock32 ............. no
+
+
+   Protocol support:
+
+
+      Kubernetes .... no
+      RDP ........... yes
+      SSH ........... yes
+      Telnet ........ no
+      VNC ........... no
+
+
+   Services / tools:
+
+
+      guacd ...... yes
+      guacenc .... yes
+      guaclog .... yes
+
+
+   FreeRDP plugins: /usr/lib/x86_64-linux-gnu/freerdp2
+   Init scripts: no
+   Systemd units: no
+
+
+Type "make" to compile guacamole-server.
+
+
+
+
+Now type
+make
+
+
+And finally to install :
+
+
+make install
+
+
+Now  “ldconfig” to update your system’s cache of installed libraries:
+ldconfig
+
+
+Once done reload the daemon
+
+
+
+
+systemctl daemon-reload
+
+
+Get the status of guacd - it should be down.
+
+
+systemctl status guacd
+
+
+To start guacd
+systemctl start guacd
+
+
+
+
+if running and good enable guacd service to start at boot.
+
+
+systemctl enable guacd
+
+
+you should get a message like this :
+
+
+guacd.service is not a native service, redirecting to systemd-sysv-install.
+Executing: /lib/systemd/systemd-sysv-install enable guacd
+
+
+To disable the service :
+systemctl disable guacd
+
+
+
+
+****************************************** SKIP THIS PART *********************
+IF WANT TO DO GIT Clone instead of using files available for download, version 1.4 required this step not for 1.5
+*******************************************************************************
+apt install git
+
+
+Clone the git repository as the tar file downloaded does not compile.
+
+
+git clone https://github.com/apache/guacamole-server.git
+
+
+cd guacamole-server/
+autoreconf -fi
+
+
+if run into errors and desperate to try and install (example i was missing Make ):
+./configure --disable-dependency-tracking
+
+
+********************************************************
+
+
+
+
+
+
+*************************************************
+ERROR Troubleshooting
+If you get error for RDP or SSH saying unable to connect or internal error occured. 
+It will most likely happen 100% of time, so just go ahead and apply this fix already !
+*************************************************
+
+
+Check to see if guacd is running on ipv6 or ipv4.
+
+
+systemctl status guacd
+
+
+ If you see 
+Listening on host ::1, port 4822
+
+
+Do this :remove localhost from ::1 in /etc/hosts then reboot.
+
+
+nano /etc/hosts
+remove the ipv6 line and save file.
+
+
+Now restart tomcat/guacd
+
+
+systemctl restart tomcat guacd
+
+
+remove localhost from ::1 in /etc/hosts then reboot.
+
+
+
+
+
+
+
+
+Tomcat Install version 10 - tried it but failed.
+
+
+NOTE: Tomcat 10 DID not work so had to do do Tomcat 9 install instead. 
+Error details : You will get page not found error when trying to browse after done installing guacomole saying /guacamole/ does not exist !
+
+
+Can use site as well : https://tecadmin.net/how-to-install-tomcat-10-on-debian-10/
+
+
+Install JDK first 
+
+
+apt install default-jdk -y 
+
+
+Check version
+
+
+java -version 
+
+
+
+
+openjdk version "11.0.18" 2023-01-17
+OpenJDK Runtime Environment (build 11.0.18+10-post-Debian-1deb11u1)
+OpenJDK 64-Bit Server VM (build 11.0.18+10-post-Debian-1deb11u1, mixed mode, sharing)
+
+
+
+
+Add group and user called tomcat
+
+
+ groupadd --system tomcat
+ useradd -d /usr/share/tomcat -r -s /bin/false -g tomcat tomcat
+ mkdir /usr/share/tomcat
+ 
+Download core tomcat  version 9 works, 10 and above not working with Guacamole. https://tomcat.apache.org/download-90.cgi
+ 
+ Various commands to run :
+ wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.72/bin/apache-tomcat-9.0.72.tar.gz
+ export VER="9.0.72"
+ tar -xvf apache-tomcat-${VER}.tar.gz
+ mv apache-tomcat-${VER}/* /usr/share/tomcat
+
+
+
+
+ chown -R tomcat:tomcat /usr/share/tomcat/
+
+
+This one is not required (lets skip and see what happens):
+chmod -R u+x /usr/share/tomcat/bin 
+
+
+
+
+nano /etc/systemd/system/tomcat.service
+  
+  
+[Unit]
+Description=Tomcat Server
+After=syslog.target network.target
+
+
+[Service]
+Type=forking
+User=tomcat
+Group=tomcat
+
+
+Environment=JAVA_HOME=/usr/lib/jvm/java-1.11.0-openjdk-amd64
+Environment='JAVA_OPTS=-Djava.awt.headless=true'
+Environment=CATALINA_HOME=/usr/share/tomcat
+Environment=CATALINA_BASE=/usr/share/tomcat
+Environment=CATALINA_PID=/usr/share/tomcat/temp/tomcat.pid
+Environment='CATALINA_OPTS=-Xms512M -Xmx1024M'
+ExecStart=/usr/share/tomcat/bin/catalina.sh start
+ExecStop=/usr/share/tomcat/bin/catalina.sh stop
+
+
+[Install]
+WantedBy=multi-user.target
+
+
+systemctl daemon-reload
+
+
+systemctl enable --now tomcat
+
+
+systemctl status tomcat
+
+
+You can browser to now to check if tomcat is running properly.
+
+
+http://yourserverip:8080/
+
+
+Edit tomcat to allow external ip to access -if connecting from somewhere outside your network, or if doing Nginx reverse proxy you can specify your proxy's ip here instead:
+
+
+Setup behind proxy : https://guacamole.apache.org/doc/gug/reverse-proxy.html
+
+
+Browse to the conf folder where tomcat is installed.
+
+
+The connector entry within conf/server.xml should look like this:
+
+
+<Connector port="8080" protocol="HTTP/1.1" 
+           connectionTimeout="20000"
+           URIEncoding="UTF-8"
+           redirectPort="8443" />
+
+
+Note the URIEncoding="UTF-8" added.
+
+
+
+
+nano server.xml
+
+
+<Valve className="org.apache.catalina.valves.RemoteIpValve"
+               internalProxies="8.8.8.8"
+               remoteIpHeader="x-forwarded-for"
+               remoteIpProxiesHeader="x-forwarded-by"
+               protocolHeader="x-forwarded-proto" />
+			   
+
+
+
+
+
+
+
+
+Lets configure guac now to work with Tomcat
+
+
+mkdir /etc/guacamole
+
+
+Go to https://guacamole.apache.org/releases/1.5.0/
+
+
+wget https://dlcdn.apache.org/guacamole/1.5.0/binary/guacamole-1.5.0.war
+
+
+mv guacamole-1.5.0.war /etc/guacamole/guacamole.war
+
+
+ln -s /etc/guacamole/guacamole.war /usr/share/tomcat/webapps/
+
+
+echo "GUACAMOLE_HOME=/etc/guacamole" | tee -a /etc/default/tomcat
+
+
+nano /etc/guacamole/guacamole.properties
+
+
+guacd-hostname: localhost
+guacd-port:    4822
+user-mapping:  /etc/guacamole/user-mapping.xml
+auth-provider:  net.sourceforge.guacamole.net.basic.BasicFileAuthenticationProvider
+
+
+ln -s /etc/guacamole /usr/share/tomcat/.guacamole
+
+
+
+
+printf '%s' Passw0rd | md5sum
+
+
+d41e98d1eafa6d6011d3a70f1a5b92f0  
+
+
+nano /etc/guacamole/user-mapping.xml
+<user-mapping>
+        
+    <!-- Per-user authentication and config information -->
+
+
+    <!-- A user using md5 to hash the password
+         guacadmin user and its md5 hashed password below is used to 
+             login to Guacamole Web UI-->
+    <authorize 
+            username="admin"
+            password="d41e98d1eafa6d6011d3a70f1a5b92f0"
+            encoding="md5">
+
+
+        <!-- First authorized Remote connection -->
+        <connection name="Server SSH">
+            <protocol>ssh</protocol>
+            <param name="hostname">192.168.205.11</param>
+            <param name="username">Need Username Line Only</param>
+            <param name="port">22</param>
+        </connection>
+
+
+        <!-- Second authorized remote connection -->
+        <connection name="Windows 10 RDP">
+            <protocol>rdp</protocol>
+            <param name="hostname">SomeIP HERE</param>
+            <param name="port">3389</param>
+            <param name="username">Need User</param>
+			<param name="password">Need This Line</param>
+            <param name="ignore-cert">true</param>
+			<param name="security">any</param>
+        </connection>
+
+
+    </authorize>
+
+
+</user-mapping>
+
+
+If all went well you should now be able to access your instance via 
+
+
+http://yourserverip:8080/guacamole/
+
+
+
+
+
+
+user and password is guacadmin for Database install, however for our instance we created admin account with password Passw0rd above.
+
+
+
+
+
+
+
+
+*************************************************
+
+
+DATABASE INSTALL Instructions Lots of benifts like authentication/user/system management https://guacamole.apache.org/doc/gug/jdbc-auth.html
+
+
+*************************************************
+
+
+
+
+apt install mariadb-server -y
+
+
+systemctl enable mariadb
+
+
+systemctl status mariadb
+
+
+systemctl start mariadb
+ 
+mysql -u root -p
+
+
+create database guacdb23;
+
+
+create user gcadmin_23@localhost identified by 'D0notUseThis';
+
+
+Grant SELECT, UPDATE, INSERT, and DELETE rights on Guacamole database tables to Guacamole database user using command below:
+
+
+grant SELECT,UPDATE,INSERT,DELETE on guacdb23.* to gcadmin_23@localhost;
+
+
+flush privileges;
+
+
+SELECT user FROM mysql.user;
+Should see :
+MariaDB [(none)]> SELECT user FROM mysql.user;
++-------------+
+| User        |
++-------------+
+| gcadmin_23  |
+| mariadb.sys |
+| mysql       |
+| root        |
++-------------+
+4 rows in set (0.001 sec)
+
+
+Run
+show databases;
+
+
+Should see :
+MariaDB [(none)]> show databases;
++--------------------+
+| Database           |
++--------------------+
+| guacdb23           |
+| information_schema |
+| mysql              |
+| performance_schema |
++--------------------+
+4 rows in set (0.000 sec)
+
+
+quit
+
+
+
+
+Download from :  https://guacamole.apache.org/releases/1.5.0/
+
+
+wget https://dlcdn.apache.org/guacamole/1.5.0/binary/guacamole-auth-jdbc-1.5.0.tar.gz
+
+
+mkdir /etc/guacamole/extensions
+mkdir /etc/guacamole/lib
+
+
+VER=1.5.0
+tar xzf guacamole-auth-jdbc-${VER}.tar.gz guacamole-auth-jdbc-${VER}/mysql
+
+
+
+
+cp guacamole-auth-jdbc-${VER}/mysql/guacamole-auth-jdbc-mysql-${VER}.jar /etc/guacamole/extensions/
+
+
+Create the database by running the two sql schema queries in the folder called schema.
+
+
+mysql -u root -p guacdb23 < guacamole-auth-jdbc-${VER}/mysql/schema/001-create-schema.sql
+
+
+mysql -u root -p guacdb23 < guacamole-auth-jdbc-${VER}/mysql/schema/002-create-admin-user.sql
+
+
+Copy the JDBC driver for your database to GUACAMOLE_HOME/lib. Without a JDBC driver for your database, 
+Guacamole will not be able to connect and authenticate users.
+
+
+JDBC for mariadb did not work, if anyone knows a fix of it let me know, so ended up using mysql connector instead.
+
+
+
+
+Platform indepent mysql jdbc https://dev.mysql.com/downloads/connector/j/?os=26
+
+
+wget https://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-j-8.0.31.tar.gz
+
+
+tar xzvf mysql-connector-j-8.0.31.tar.gz
+
+
+cp mysql-connector-j-8.0.31/mysql-connector-j-8.0.31.jar /etc/guacamole/lib
+
+
+
+
+nano /etc/guacamole/guacamole.properties
+
+
+Remove the user mapping line if it was added earlier, since we be using database now.
+mysql-hostname: localhost
+mysql-database: guacdb23
+mysql-username: gcadmin_23
+mysql-password: D0notUseThis
+
+
+systemctl restart tomcat guacd mariadb
+
+
+
+
+Browse to your Guacamole instance and login  http://yoursite:8080/guacamole/
+
+
+username : guacadmin
+password: guacadmin
+
+
+Screen sharing on Guacamole a separate video - creating user - assigning rights/access etc. Later will do shibboleth authentication as well.
+
+
+All Done Enjoy !!
+
+
+youtube.com/@hashtagtnt
+
+

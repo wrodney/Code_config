@@ -1,0 +1,95 @@
+# on terminal type:
+
+sudo apt install mariadb-server
+
+# check version
+
+mariadb --version
+
+sudo mysql_secure_installation
+
+NOTE: RUNNING ALL PARTS OF THIS SCRIPT IS RECOMMENDED FOR ALL Mariadb SERVER IN PRODUCTION USE: PLEASE READ EACH STEPS CAREFULLY!
+
+In order to log into MariaDB to secure it, we'll need the current password for the root user.  If you've just installed MariaDB, and haven't set the root password yet, you should press enter here.
+
+Enter current password for root (enter for none):
+OK, sucessfully used password, move on...
+
+Setting the root password or using the unix_socket ensures that nobody can log into the MariaDB root user without the proper authorisation.
+
+You already have your root account protected, so you can safely answer 'n'.
+
+Switch to unix-socket authentiation [Y/n] n
+... skipping
+
+By default, a MariaDB installation has an anonymous user, allowing anyone to log into MariaDB without having to have a user account created for them. This is intended only for testing, and to make the installation go a bit smoother. You should remove them before moving into a production environment.
+
+Remove anonymous users? [Y/n] y 
+... Success!
+
+Normal, root should only be allowed to connect for 'localhost'.  This ensures that someone cannot guess at the root password for the network.
+
+Disallow root login remotely? [Y/n] y 
+
+By default, MariaDB comes with a database named 'test' that anyone can access.  This is also intended only for testing, and should be removed before moving into a production environment.
+
+Remove test database and access to it? [Y/n] n 
+
+Reloading the privilege table will ensure that all changes made so far will take affect immediately.
+
+Reload privilege table now? [Y/n] y 
+... Success!
+
+Thanks for using MariaDB!
+
+# sudo mariadb
+
+Mariadb [(none)]>
+
+exit
+
+# to log into MariaDB Type:
+
+Mariadb [(none)]> GRANT ALL ON *.* TO 'admin'@'localhost' IDENTIFIED BY '3blindm!ce' WITH GRANT OPTION;
+
+Mariadb [(none)]> FLUSH PRIVILEGES
+
+exit
+
+# To check the status of MariaDB type:
+
+sudo systemctl status mariadb
+
+# To start MariaDB type:
+
+sudo systemctl start mariadb
+
+sudo mariadb
+Mariadb [(none)]>  
+
+: show databases;
+: use <database name>
+: show tables;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+GRANT ALL ON *.* TO 'admin'@'localhost' IDENTIFIED BY '3blindm!ce' WITH GRANT OPTION;
