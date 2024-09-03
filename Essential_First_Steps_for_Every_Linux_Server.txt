@@ -1,6 +1,6 @@
 Essential First Steps for Every New Linux Server Build
 
-Connect to Server as root:
+Connect to Server as root::
 
 ssh root@IP-Address
 
