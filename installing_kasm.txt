@@ -1,0 +1,51 @@
+# Installing Kasm
+The following commands were used in the video to install Kasm:
+
+cd /tmp
+curl -O https://kasm-static-content.s3.amazonaws.com/kasm_release_1.14.0.3a7abb.tar.gz
+sudo bash kasm_release/install.sh
+
+
+Installation Complete
+
+
+Kasm UI Login Credentials
+
+------------------------------------
+  username: admin@kasm.local
+  password: AdfJ1NmDMrs5x
+------------------------------------
+  username: user@kasm.local
+  password: Ara5iqgXxLtRG
+------------------------------------
+
+Kasm Database Credentials
+------------------------------------
+  username: kasmapp
+  password: b3j9ybCMNwSltAvcSX9u
+------------------------------------
+
+Kasm Redis Credentials
+------------------------------------
+  password: 3sgspNwxc553hxfj0nuo
+------------------------------------
+
+Kasm Manager Token
+------------------------------------
+  password: AOWBVrXSPPvrEruz1fSu
+------------------------------------
+
+Kasm Guac Token
+------------------------------------
+  password: hsqZ4s6jajDX5aWE6eA7BQ
+------------------------------------
+
+Service Registration Token
+------------------------------------
+  password: Ww7kknuoq7yfFnFahtfC
+------------------------------------
+
+
+[root@rh9host kasm_release]#
+
+https://192.168.1.206/?lng=en#/dashboard 
